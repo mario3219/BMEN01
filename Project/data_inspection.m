@@ -10,7 +10,7 @@ addpath('src')
 
 %% Inspect data
 for data = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat','afdb_6.mat','afdb_7.mat'}
-    inspect.plotdata(data{1});
+    funcs.plotdata(data{1});
 end
 
 %%
