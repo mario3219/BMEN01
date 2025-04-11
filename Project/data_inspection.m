@@ -9,9 +9,8 @@ addpath('AF_RR_intervals/')
 addpath('src')
 
 %% Inspect data
-for data = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat','afdb_6.mat','afdb_7.mat'}
-    funcs.plotdata(data{1});
-end
+data = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat','afdb_6.mat','afdb_7.mat'};
+funcs.plotdata(data{6});
 
 %%
 load("afdb_1.mat")

@@ -39,7 +39,7 @@ labels = zeros(total_segments,1);
 index = 1;
 for i = 1:stepsize:(length(rr)-windowsize)
     % Extracts the most frequent label in the window
-    label = mode(targetsRR(i:i+windowsize));
+    label = mode(targetsRR(i:i+windowsize-1));
     labels(index) = label;
     index = index + 1;
 end
