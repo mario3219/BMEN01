@@ -53,7 +53,27 @@ classdef RMSSD
                     threshold = t;
                 end
             end
+    end
+
+    function result = predict(data,threshold,windowsize,stepsize)
+        load(data);
+        total_segments = floor(length(rr)/windowsize);
+        result = zeros(total_segments,2);
+        index = 1;
+        for i = 1:stepsize:(length(rr)-windowsize)
+            % Calculate the RMSSD score for the given window
+            deltarr = diff(rr(i:i+windowsize));
+            score = sqrt(mean(deltarr.^2));
+
+            % If RMSSD passes the threshold, it is labelled as 1
+            if score > threshold
+                result(index,:) = [score, 1];
+            else
+                result(index,:) = [score, 0];
+            end
+            index = index + 1;
         end
+    end
 
     % Class end
     end
