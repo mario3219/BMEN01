@@ -14,6 +14,10 @@ classdef inspect
             subplot(1,4,4),plot(qrs),title('qrs')
         end
 
+        function result = getheartrate(rr)
+            result = 60./rr;
+        end
+
         function TP = TP(labels,predictions)
             TP = 0;
             for i = 1:length(labels)

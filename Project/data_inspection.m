@@ -10,10 +10,18 @@ addpath('src')
 
 %% Inspect data
 data = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat','afdb_6.mat','afdb_7.mat'};
+
+%% Plot
 inspect.plotdata(data{6});
 
 %%
-load("afdb_1.mat")
+load("afdb_7.mat")
+
+% Heartrate
+heartrate = inspect.getheartrate(rr);
+figure,plot(heartrate),title("Heartrate")
+
+%%
 
 % Compare labeled RR and rr
 figure, plot(targetsRR), ylim([0.5 1.5]), xlim([2500 4000]), title('targetsRR')
