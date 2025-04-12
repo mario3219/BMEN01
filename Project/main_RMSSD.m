@@ -19,8 +19,8 @@ trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
 validationdata = {'afdb_5.mat','afdb_6.mat','afdb_7.mat'};
 validationdata = validationdata{1}; % Change which data to validate against here
 
-windowsize = 30;
-stepsize = 10;
+windowsize = 5;
+stepsize = 5;
 
 % Train & predict
 threshold = modelling.train(trainingdata,"RMSSD",windowsize,stepsize);
