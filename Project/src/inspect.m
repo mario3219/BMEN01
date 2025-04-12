@@ -62,7 +62,8 @@ classdef inspect
         end
 
         % Data processing functions
-        function labels = getlabels(targetsRR,rr,windowsize,stepsize)
+        function labels = getlabels(data,windowsize,stepsize)
+            load(data)
             total_segments = floor(length(rr)/windowsize);
             
             % Validation labels vector

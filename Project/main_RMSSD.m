@@ -27,9 +27,7 @@ threshold = modelling.train(trainingdata,"RMSSD",windowsize,stepsize);
 predictions = modelling.predict(validationdata,threshold,"RMSSD",windowsize,stepsize);
 
 %% Performance evaluation
-load(validationdata)
-
-labels = inspect.getlabels(targetsRR,rr,windowsize,stepsize);
+labels = inspect.getlabels(validationdata,windowsize,stepsize);
 TP = inspect.TP(labels,predictions);
 TN = inspect.TN(labels,predictions);
 Accuracy = (TP+TN)/length(labels);
