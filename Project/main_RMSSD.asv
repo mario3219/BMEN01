@@ -23,15 +23,12 @@ windowsize = 30;
 stepsize = 10;
 
 % Train & predict
-threshold = modelling.train(trainingdata,"RMSSD",windowsize,stepsize);
-predictions = modelling.predict(validationdata,threshold,"RMSSD",windowsize,stepsize);
+threshold = modelling.train(trainingdata,"RMSSD",30,10);
+%threshold = RMSSD.train(trainingdata,30,10);
+predictions = modelling.predict(validationdata,threshold,"RMSSD",30,10);
 
 %% Performance evaluation
 load(validationdata)
-
 labels = inspect.getlabels(targetsRR,rr,windowsize,stepsize);
-TP = inspect.TP(labels,predictions);
-TN = inspect.TN(labels,predictions);
-Accuracy = (TP+TN)/length(labels);
-
-fprintf("Accuracy: " + Accuracy)
+inspect.truepositives(labels,predictions)
+inspect.truenegatives(labels,predictions)
