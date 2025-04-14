@@ -20,16 +20,15 @@ classdef inspect
         function compare(validationdata,predictions,windowsize,stepsize)
             load(validationdata)
             labels = inspect.getlabels(validationdata,windowsize,stepsize);
-
-            predictions = predictions(:,2); % F1 function has to have 1xN dimension vectors
-            f1 = inspect.f1score(labels, predictions);
+            predictions = predictions(:,2);
+            f1 = inspect.f1score(labels, predictions(:,2));
 
             figure
             subplot(3,1,1),plot(rr),title("rr");
             subplot(3,1,2),plot(targetsRR),ylim([0.5 1.5]),title("True label");
-            subplot(3,1,3),plot(predictions),ylim([0.5 1.5]),title("Predicted label");
+            subplot(3,1,3),plot(predictions(:,2)),ylim([0.5 1.5]),title("Predicted label");
             txt = ['F1 score: ' num2str(f1) ''];
-            text(length(predictions)/3,1.2,txt)
+            text(length(predictions(:,2))/3,1.2,txt)
         end
 
         function result = getheartrate(rr)
@@ -72,7 +71,7 @@ classdef inspect
             end
         end
         
-        % true and predictions vectors has to be 1xN dimension
+        % true and predictions has to be 1xN dimension
         function f1 = f1score(true, predictions)
 
             TP = inspect.TP(true,predictions);
@@ -86,7 +85,7 @@ classdef inspect
             f1 = 2 * (precision * recall) / (precision + recall + eps);
         end
 
-        % Extract labels from a dataset
+        % Data processing functions
         function labels = getlabels(data,windowsize,stepsize)
             load(data)
             total_segments = length(1:stepsize:(length(rr)-windowsize));
