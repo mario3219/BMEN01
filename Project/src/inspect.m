@@ -14,6 +14,19 @@ classdef inspect
             subplot(4,1,4),plot(qrs),title('qrs')
         end
 
+        function compare(validationdata,predictions,windowsize,stepsize)
+            load(validationdata)
+            labels = inspect.getlabels(validationdata,windowsize,stepsize);
+            f1 = inspect.f1score(labels, predictions(:,2));
+
+            figure
+            subplot(3,1,1),plot(rr),title("rr");
+            subplot(3,1,2),plot(targetsRR),ylim([0.5 1.5]),title("True label");
+            subplot(3,1,3),plot(predictions(:,2)),ylim([0.5 1.5]),title("Predicted label");
+            txt = ['F1 score: ' num2str(f1) ''];
+            text(length(predictions(:,2))/3,1.2,txt)
+        end
+
         function result = getheartrate(rr)
             result = 60./rr;
         end

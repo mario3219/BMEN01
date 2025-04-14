@@ -33,4 +33,4 @@ threshold = modelling.train(trainingdata,windowsize,stepsize,criterion,filter,po
 predictions = modelling.predict(validationdata,windowsize,stepsize,criterion,threshold);
 
 % Performance evaluation
-inspect.compare(validationdata,predictions,windowsize,stepsize);
+inst
