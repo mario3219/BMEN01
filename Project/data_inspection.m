@@ -8,27 +8,8 @@ addpath('AF_RR_intervals/')
 % path to source code
 addpath('src')
 
-%% Inspect data
-data = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat','afdb_6.mat','afdb_7.mat'};
-
 %% Plot
 inspect.plotdata(data{6});
-
-%%
-load("afdb_7.mat")
-
-% Heartrate
-heartrate = inspect.getheartrate(rr);
-figure,plot(heartrate),title("Heartrate")
-
-%%
-
-% Compare labeled RR and rr
-figure, plot(targetsRR), ylim([0.5 1.5]), xlim([2500 4000]), title('targetsRR')
-figure, plot(rr), xlim([2500 4000]), title('rr')
-
-% Compare labeled QRS and rr
-figure, plot(targetsQRS), ylim([0.5 1.5]), xlim([2500 4000]), title('targetsQRS')
 
 % targetsRR: label vector (0: normal, 1: AF)
 % QRS: QRS detector
@@ -40,3 +21,20 @@ rr_diff = diff(qrs) / Fs;
 figure,
 subplot(1,2,1),plot(rr_diff),title("rr_diff")
 subplot(1,2,2),plot(rr),title("rr")
+
+%% Median test
+load("afdb_7.mat")
+points = 9;
+threshold = 0.2;
+filtered = modelling.medianfilter(rr,points,threshold);
+figure
+subplot(2,1,1),plot(rr),title("Unfiltered rr"),ylim([0 2]);
+subplot(2,1,2),plot(filtered),title("Filtered rr"),ylim([0 2]);
+
+
+%% Heartrate
+load("afdb_7.mat")
+
+% Heartrate
+heartrate = inspect.getheartrate(rr);
+figure,plot(heartrate),title("Heartrate")

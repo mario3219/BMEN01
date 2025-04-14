@@ -95,6 +95,18 @@ classdef modelling
             end
         end
 
+        function result = medianfilter(rr,points,threshold)
+            result = rr;
+            for i = 1:points:(length(result)-points)
+                median = result(i+points);
+                for k = i:1:i+points
+                    if result(k)/median >= 1+threshold || result(k)/median <= 1-threshold
+                        result(k) = median;
+                    end
+                end
+            end
+        end
+
 % Class end
     end
 end
