@@ -13,7 +13,7 @@ classdef modelling
         % based on a certain threshold, and return the threshold value which
         % provided the best F1 score.
 
-        function threshold = train(trainingdata, criterion, windowsize,stepsize)
+        function threshold = train(trainingdata,windowsize,stepsize,criterion,filter,points,filterthreshold)
 
             % Calculate number of segments to label, also necessary to
             % initialize label matrix with appropriate size to prevent
@@ -25,14 +25,22 @@ classdef modelling
             end
             results = zeros(total_segments,2);
             
-            % Calculate score values and store the corresponding label to
-            % that window
+            % Start iterating through trainingdata
             index = 1;
             for k = 1:length(trainingdata)
+                
                 load(trainingdata{k})
+                
+                % Ectopic beats filter
+                if filter == "ON"
+                    rr = modelling.medianfilter(rr,points,filterthreshold);
+                end
+                
+                % TRAINING: Calculate score values and store the corresponding label to
+                % that window
                 for i = 1:stepsize:(length(rr)-windowsize)
 
-                    % If-statements depending on which criterion the user
+                    % If-statements depending on which parameters the user
                     % wishes to compute
 
                     % Criterions input start
@@ -40,7 +48,8 @@ classdef modelling
                         score = RMSSD.func(rr,windowsize,i);
                     end
                     % Criterion inputs end
-
+                    
+                    % Get true labels for that window
                     label = mode(targetsRR(i:i+windowsize));
                     results(index,:) = [score, label];
                     index = index + 1;
@@ -95,13 +104,12 @@ classdef modelling
             end
         end
 
-        function result = medianfilter(rr,points,threshold)
-            result = rr;
-            for i = 1:points:(length(result)-points)
-                median = result(i+points);
+        function rr = medianfilter(rr,points,threshold)
+            for i = 1:points:(length(rr)-points)
+                median = rr(i+points);
                 for k = i:1:i+points
-                    if result(k)/median >= 1+threshold || result(k)/median <= 1-threshold
-                        result(k) = median;
+                    if rr(k)/median >= 1+threshold || rr(k)/median <= 1-threshold
+                        rr(k) = median;
                     end
                 end
             end
