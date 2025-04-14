@@ -14,6 +14,9 @@ classdef inspect
             subplot(4,1,4),plot(qrs),title('qrs')
         end
 
+        % Performance evaluation. Plots the validation rr sequence, on top
+        % of the predicted labels and true labels, aswell as showing
+        % computed F1 score
         function compare(validationdata,predictions,windowsize,stepsize)
             load(validationdata)
             labels = inspect.getlabels(validationdata,windowsize,stepsize);
