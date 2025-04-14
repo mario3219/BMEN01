@@ -32,6 +32,21 @@ classdef inspect
             text(length(predictions)/3,1.2,txt)
         end
 
+        % Plots score distribution among the classes. A good distribution
+        % is clear distinct separation between classes. An overlap
+        % signifies a weak predictor that can't distinguish the classes
+        function scoreDistribution(predictions)
+            scores = predictions(:,1);
+            labels = predictions(:,2);
+            
+            figure
+            histogram(scores(labels == 0))
+            hold on
+            histogram(scores(labels == 1))
+            legend('0','1')
+            title('Score distributions')
+        end
+
         function result = getheartrate(rr)
             result = 60./rr;
         end

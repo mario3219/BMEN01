@@ -34,3 +34,4 @@ predictions = modelling.predict(validationdata,windowsize,stepsize,criterion,thr
 
 % Performance evaluation
 inspect.compare(validationdata,predictions,windowsize,stepsize);
+inspect.scoreDistribution(predictions)

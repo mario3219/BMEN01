@@ -61,7 +61,7 @@ classdef modelling
             labels = results(:,2);
 
             % Create threshold test vector
-            thresholds = linspace(min(scores), max(scores));
+            thresholds = linspace(min(scores), max(scores),1000);
 
             % Find the threshold which provides the best F1 score
             bestf1 = 0;
