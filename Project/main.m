@@ -30,7 +30,7 @@ filterthreshold = 0.2;
 
 % Train & predict
 threshold = modelling.train(trainingdata,windowsize,stepsize,criterion,filter,points,filterthreshold);
-predictions = modelling.predict(validationdata,threshold,"RMSSD",windowsize,stepsize);
+predictions = modelling.predict(validationdata,windowsize,stepsize,criterion,threshold);
 
 % Performance evaluation
 labels = inspect.getlabels(validationdata,windowsize,stepsize);

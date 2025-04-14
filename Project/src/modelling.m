@@ -78,7 +78,7 @@ classdef modelling
 
         end
 
-        function result = predict(data,threshold,criterion,windowsize,stepsize)
+        function result = predict(data,windowsize,stepsize,criterion,threshold)
             load(data);
             total_segments = length(1:stepsize:(length(rr)-windowsize));
             result = zeros(total_segments,2);
