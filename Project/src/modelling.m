@@ -120,7 +120,7 @@ classdef modelling
             result = any(strcmp(vector, target));
         end
 
-        function model = SVM(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold)
+        function model = SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold)
             total_segments = 0;
             for i = 1:length(trainingdata)
                 load(trainingdata{i})
@@ -151,12 +151,6 @@ classdef modelling
                         score = RMSSD.func(rr,windowsize,i);
                         results(index,1) = score;
                     end
-
-                    % strunt snack
-                    if modelling.containsString(features,"bajs")
-                        score = 10;
-                        results(index,2) = score;
-                    end
                     % Criterion inputs end
                     
                     results(index,length(features)+1) = label;
@@ -170,6 +164,28 @@ classdef modelling
 
             model = fitcsvm(X, Y);
 
+        end
+
+        function predictions = SVMpredict(SVM,data,windowsize,stepsize,features)
+            load(data);
+            total_segments = length(1:stepsize:(length(rr)-windowsize));
+            formatted_data = zeros(total_segments,length(features));
+            index = 1;
+            for i = 1:stepsize:(length(rr)-windowsize)
+    
+                % If statements depending on which criterion the user
+                % wishes to compute
+
+                % Criterions input start
+                if modelling.containsString(features,"RMSSD")
+                    score = RMSSD.func(rr,windowsize,i);
+                    formatted_data(index,1) = score;
+                end
+                % Criterions input end
+                index = index + 1;
+            end
+            formatted_data(:,all(formatted_data == 0, 1)) = [];
+            predictions = predict(SVM,formatted_data);
         end
 
 % Class end

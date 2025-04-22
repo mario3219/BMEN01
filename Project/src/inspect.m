@@ -21,7 +21,6 @@ classdef inspect
             load(validationdata)
             labels = inspect.getlabels(validationdata,windowsize,stepsize);
 
-            predictions = predictions(:,2); % F1 function has to have 1xN dimension vectors
             f1 = inspect.f1score(labels, predictions);
 
             figure
