@@ -115,18 +115,12 @@ classdef modelling
             end
         end
 
-        function result = containsString(vector, target)
-            % Check if target is in the vector
-            result = any(strcmp(vector, target));
-        end
-
-        function model = SVM(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold)
+        function model = SVM(trainingdata,windowsize,stepsize,criterions,filter,points,filterthreshold)
             total_segments = 0;
             for i = 1:length(trainingdata)
                 load(trainingdata{i})
                 total_segments = total_segments + length(1:stepsize:(length(rr)-windowsize));
             end
-            results = zeros(total_segments,length(features)+1);
 
             % Start iterating through trainingdata
             index = 1;
@@ -142,34 +136,23 @@ classdef modelling
                 % TRAINING: Calculate score values and store the corresponding label to
                 % that window
                 for i = 1:stepsize:(length(rr)-windowsize)
-                    label = mode(targetsRR(i:i+windowsize));
+
                     % If-statements depending on which parameters the user
                     % wishes to compute
 
                     % Criterions input start
-                    if modelling.containsString(features,"RMSSD")
+                    if feature == "RMSSD"
                         score = RMSSD.func(rr,windowsize,i);
-                        results(index,1) = score;
-                    end
-
-                    % strunt snack
-                    if modelling.containsString(features,"bajs")
-                        score = 10;
-                        results(index,2) = score;
                     end
                     % Criterion inputs end
                     
-                    results(index,length(features)+1) = label;
+                    % Get true labels for that window
+                    label = mode(targetsRR(i:i+windowsize));
+                    results(index,:) = [score, label];
                     index = index + 1;
                 end
             end
-            results(:,all(results == 0, 1)) = [];
-
-            X = results(:, 1:end-1);   % Features
-            Y = results(:, end);       % Labels
-
-            model = fitcsvm(X, Y);
-
+            result = zeros(total_segments,length(criterions)+1);
         end
 
 % Class end

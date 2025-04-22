@@ -25,8 +25,8 @@ subplot(1,2,2),plot(rr),title("rr")
 
 %% Median filter test
 load("afdb_6.mat")
-points = 100;
-threshold = 0.2;
+points = 50;
+threshold = 0.5;
 filtered = modelling.medianfilter(rr,points,threshold);
 figure
 subplot(2,1,1),plot(rr),title("Unfiltered rr"),ylim([0 2]);
