@@ -46,6 +46,10 @@ classdef modelling
                     % Criterions input start
                     if feature == "RMSSD"
                         score = RMSSD.func(rr,windowsize,i);
+                    elseif feature == "SSampEn"
+                        score = SSampEn.func(rr, windowsize, i);
+                    else
+                        error("Unknown feature: %s", feature)
                     end
                     % Criterion inputs end
                     
@@ -78,7 +82,7 @@ classdef modelling
 
         end
 
-        function result = predict(data,windowsize,stepsize,criterion,threshold)
+        function result = predict(data,windowsize,stepsize,feature,threshold)
             load(data);
             total_segments = length(1:stepsize:(length(rr)-windowsize));
             result = zeros(total_segments,2);
@@ -89,8 +93,12 @@ classdef modelling
                 % wishes to compute
 
                 % Criterions input start
-                if criterion == "RMSSD"
+                if feature == "RMSSD"
                     score = RMSSD.func(rr,windowsize,i);
+                elseif feature == "SSampEn"
+                    score = SSampEn.func(rr, windowsize, i);
+                else
+                    error("Unknown feature: %s", feature)
                 end
                 % Criterions input end
     
@@ -106,7 +114,7 @@ classdef modelling
 
         function rr = medianfilter(rr,points,threshold)
             for i = 1:points:(length(rr)-points)
-                median = rr(i+abs(points/2));
+                median = rr(i+round(points/2));
                 for k = i:1:i+points
                     if rr(k)/median >= 1+threshold || rr(k)/median <= 1-threshold
                         rr(k) = median;
@@ -151,6 +159,10 @@ classdef modelling
                         score = RMSSD.func(rr,windowsize,i);
                         results(index,1) = score;
                     end
+                    if modelling.containsString(features,"SSampEn")
+                        score = SSampEn.func(rr,windowsize,i);
+                        results(index,2) = score;
+                    end
                     % Criterion inputs end
                     
                     results(index,length(features)+1) = label;
@@ -180,6 +192,10 @@ classdef modelling
                 if modelling.containsString(features,"RMSSD")
                     score = RMSSD.func(rr,windowsize,i);
                     formatted_data(index,1) = score;
+                end
+                if modelling.containsString(features,"SSampEn")
+                    score = SSampEn.func(rr,windowsize,i);
+                    formatted_data(index,2) = score;
                 end
                 % Criterions input end
                 index = index + 1;

@@ -11,22 +11,21 @@ addpath('src/')
 
 trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
 validationdata = {'afdb_5.mat','afdb_6.mat','afdb_7.mat'};
-validationdata = validationdata{2}; % Change which data to validate against here
+validationdata = validationdata{3}; % Change which data to validate against here
 
 %% SVM
 
-windowsize = 100;
-stepsize = 10;
-features = "RMSSD";
-filter = "OFF";
-points = 5;
+windowsize = 30;
+stepsize = 30;
+features = ["RMSSD","SSampEn"];
+filter = "ON";
+points = 10;
 filterthreshold = 0.2;
 
 model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold);
 predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features);
 
-%inspect.compare(validationdata,predictions,windowsize,stepsize);
-%inspect.scoreDistribution(predictions)
+inspect.compare(validationdata,predictions,windowsize,stepsize);
 
 %% RMSSD
 
@@ -48,5 +47,19 @@ threshold = modelling.train(trainingdata,windowsize,stepsize,feature,filter,poin
 predictions = modelling.predict(validationdata,windowsize,stepsize,feature,threshold);
 
 % Performance evaluation
+inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.scoreDistribution(predictions)
+
+%% SSampEn
+windowsize = 30;
+stepsize = 30;
+criterion = "SSampEn";
+filter = "ON";
+points = 10;
+filterthreshold = 0.2;
+
+threshold = modelling.train(trainingdata,windowsize,stepsize,criterion,filter,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,criterion,threshold);
+
 inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
 inspect.scoreDistribution(predictions)
