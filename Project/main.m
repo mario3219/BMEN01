@@ -13,15 +13,27 @@ trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
 validationdata = {'afdb_5.mat','afdb_6.mat','afdb_7.mat'};
 validationdata = validationdata{3}; % Change which data to validate against here
 
+%% Gridsearch
+
+windowsizes = 10:10:20;
+stepsizes = 10:10:50;
+features = "SSampEn";
+filters = "ON";
+points = 3:1:10;
+filterthresholds = 0.1:0.05:0.2;
+binsizes=0:0.02:0.1;
+
+modelling.gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filters,points,filterthresholds,binsizes)
+
 %% SVM
 
 windowsize = 30;
-stepsize = 30;
-features = ["RMSSD","SSampEn","Poincare"];
+stepsize = 10;
+features = ["SSampEn","RMSSD"];
 filter = "ON";
 points = 10;
 filterthreshold = 0.2;
-binsize=0.025;
+binsize=0.05;
 
 model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold,binsize);
 predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features,binsize);

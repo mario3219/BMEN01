@@ -5,12 +5,12 @@ classdef Poincare
     % Class start
 
     function score = func(rr,windowsize,i,binsize)
-    	start = i;
+    start = i;
 	stop = i+windowsize;
 	binstart = 0;
 	binstop = 3;
 	
-	if stop > length(rr)
+	if stop >= length(rr)-1
 		stop = length(rr)-1;
 	end
 

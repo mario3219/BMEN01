@@ -132,88 +132,116 @@ classdef modelling
             result = any(strcmp(vector, target));
         end
 
-        function model = SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold,binsize)
-            total_segments = 0;
-            for i = 1:length(trainingdata)
-                load(trainingdata{i})
-                total_segments = total_segments + length(1:stepsize:(length(rr)-windowsize));
-            end
-            results = zeros(total_segments,length(features)+1);
-
-            % Start iterating through trainingdata
-            index = 1;
-            for k = 1:length(trainingdata)
-                
-                load(trainingdata{k})
-                
-                % Ectopic beats filter
-                if filter == "ON"
-                    rr = modelling.medianfilter(rr,points,filterthreshold);
-                end
-                
-                % TRAINING: Calculate score values and store the corresponding label to
-                % that window
-                for i = 1:stepsize:(length(rr)-windowsize)
-                    label = mode(targetsRR(i:i+windowsize));
-                    % If-statements depending on which parameters the user
-                    % wishes to compute
-
-                    % Criterions input start
-                    if modelling.containsString(features,"RMSSD")
-                        score = RMSSD.func(rr,windowsize,i);
-                        results(index,1) = score;
-                    end
-                    if modelling.containsString(features,"SSampEn")
-                        score = SSampEn.func(rr,windowsize,i);
-                        results(index,2) = score;
-                    end
-                    if modelling.containsString(features,"Poincare")
-                        score = Poincare.func(rr,windowsize,i,binsize);
-                        results(index,3) = score;
-                    end
-                    % Criterion inputs end
-                    
-                    results(index,length(features)+1) = label;
-                    index = index + 1;
-                end
-            end
-            results(:,all(results == 0, 1)) = [];
-
-            X = results(:, 1:end-1);   % Features
-            Y = results(:, end);       % Labels
-
-            model = fitcsvm(X, Y);
-
+    function model = SVMtrain(trainingdata, windowsize, stepsize, features, filter, points, filterthreshold, binsize)
+        total_segments = 0;
+        for i = 1:length(trainingdata)
+            load(trainingdata{i});
+            total_segments = total_segments + length(1:stepsize:(length(rr) - windowsize));
         end
-
-        function predictions = SVMpredict(SVM,data,windowsize,stepsize,features,binsize)
-            load(data);
-            total_segments = length(1:stepsize:(length(rr)-windowsize));
-            formatted_data = zeros(total_segments,length(features));
-            index = 1;
-            for i = 1:stepsize:(length(rr)-windowsize)
     
-                % If statements depending on which criterion the user
-                % wishes to compute
-
-                % Criterions input start
-                if modelling.containsString(features,"RMSSD")
-                    score = RMSSD.func(rr,windowsize,i);
-                    formatted_data(index,1) = score;
+        results = zeros(total_segments, length(features) + 1); % +1 for label
+    
+        index = 1;
+        for k = 1:length(trainingdata)
+            load(trainingdata{k});
+    
+            % Ectopic beats filter
+            if filter == "ON"
+                rr = modelling.medianfilter(rr, points, filterthreshold);
+            end
+    
+            % Calculate scores + labels
+            for i = 1:stepsize:(length(rr) - windowsize)
+                label = mode(targetsRR(i:i+windowsize));
+    
+                for f = 1:length(features)
+                    feature_name = features{f};
+    
+                    switch feature_name
+                        case "RMSSD"
+                            score = RMSSD.func(rr, windowsize, i);
+                        case "SSampEn"
+                            score = SSampEn.func(rr, windowsize, i);
+                        case "Poincare"
+                            score = Poincare.func(rr, windowsize, i, binsize);
+                    end
+                    results(index, f) = score;
                 end
-                if modelling.containsString(features,"SSampEn")
-                    score = SSampEn.func(rr,windowsize,i);
-                    formatted_data(index,2) = score;
-                end
-                if modelling.containsString(features,"Poincare")
-                    score = Poincare.func(rr,windowsize,i,binsize);
-                    formatted_data(index,3) = score;
-                end
-                % Criterions input end
+    
+                % Store label in the last column
+                results(index, length(features) + 1) = label;
                 index = index + 1;
             end
-            formatted_data(:,all(formatted_data == 0, 1)) = [];
-            predictions = predict(SVM,formatted_data);
+        end
+    
+        % Remove rows where all features are zero
+        results(all(results == 0, 2), :) = [];
+    
+        % Separate features and labels
+        X = results(:, 1:end-1); % Features
+        Y = results(:, end);     % Labels
+    
+        % Train SVM
+        model = fitcsvm(X, Y);
+    end
+
+    function predictions = SVMpredict(SVM, data, windowsize, stepsize, features, binsize)
+        load(data);
+    
+        total_segments = length(1:stepsize:(length(rr) - windowsize));
+        formatted_data = zeros(total_segments, length(features));
+        index = 1;
+    
+        for i = 1:stepsize:(length(rr) - windowsize)
+            for f = 1:length(features)
+                feature_name = features{f};
+    
+                switch feature_name
+                    case "RMSSD"
+                        score = RMSSD.func(rr, windowsize, i);
+                    case "SSampEn"
+                        score = SSampEn.func(rr, windowsize, i);
+                    case "Poincare"
+                        score = Poincare.func(rr, windowsize, i, binsize);
+                end
+                formatted_data(index, f) = score;
+            end
+            index = index + 1;
+        end
+    
+        % Remove rows where all features are zero
+        formatted_data(all(formatted_data == 0, 2), :) = [];
+    
+        % Predict
+        predictions = predict(SVM, formatted_data);
+    end
+
+
+        function best = gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filter,points,filterthresholds,binsizes)
+            bestf1 = 0;
+            total_iterations = length(windowsizes)*length(stepsizes)*length(features)*length(filter)*length(points)*length(filterthresholds)*length(binsizes);
+            iteration = 1;
+            for a = windowsizes
+                for b = stepsizes
+                        for d = filter
+                            for e = points
+                                for f = filterthresholds
+                                    for g = binsizes
+                                        fprintf("Progress: " + iteration + "/" + total_iterations + "\n");
+                                        model = modelling.SVMtrain(trainingdata,a,b,features,d,e,f,g);
+                                        predictions = modelling.SVMpredict(model,validationdata,a,b,features,g);
+                                        labels = inspect.getlabels(validationdata,a,b);
+                                        f1 = inspect.f1score(labels, predictions);
+                                        if f1 > bestf1
+                                            best = [a,b,d,e,f,g];
+                                        end
+                                        iteration = iteration + 1;
+                                    end
+                                end
+                            end
+                        end
+                end
+            end
         end
 
 % Class end
