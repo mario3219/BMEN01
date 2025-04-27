@@ -146,7 +146,7 @@ classdef modelling
             load(trainingdata{k});
     
             % Ectopic beats filter
-            if filter == "ON"
+            if filter == 1
                 rr = modelling.medianfilter(rr, points, filterthreshold);
             end
     
@@ -217,34 +217,85 @@ classdef modelling
     end
 
 
-        function [besta,bestb,bestd,beste,bestf,bestg,bestf1] = gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filter,points,filterthresholds,binsizes)
-            bestf1 = 0;
-            total_iterations = length(windowsizes)*length(stepsizes)*length(features)*length(filter)*length(points)*length(filterthresholds)*length(binsizes);
-            iteration = 1;
-            for a = windowsizes
-                for b = stepsizes
-                        for d = filter
-                            for e = points
-                                for f = filterthresholds
-                                    for g = binsizes
-                                        fprintf("Progress: " + iteration + "/" + total_iterations + "\n");
-                                        model = modelling.SVMtrain(trainingdata,a,b,features,d,e,f,g);
-                                        predictions = modelling.SVMpredict(model,validationdata,a,b,features,g);
-                                        labels = inspect.getlabels(validationdata,a,b);
-                                        f1 = inspect.f1score(labels, predictions);
-                                        if f1 > bestf1
-                                            fprintf("New best: " + f1 + "\n")
-                                            besta=a;bestb=b;bestd=d;beste=e;bestf=f;bestg=g;
-                                            bestf1 = f1;
-                                        end
-                                        iteration = iteration + 1;
-                                    end
-                                end
-                            end
+function [besta, bestb, bestd, beste, bestf, bestg, bestf1] = gridSearch(trainingdata, validationdata, windowsizes, stepsizes, features, filter, points, filterthresholds, binsizes)
+
+    total_iterations = length(windowsizes) * length(stepsizes) * length(filter) * length(points) * length(filterthresholds) * length(binsizes);
+
+    % Preallocate
+    scores = zeros(total_iterations, 7); % [a, b, d, e, f, g, f1]
+
+    % Generate all combinations
+    idx = 1;
+    combinations = zeros(total_iterations, 6); % [a, b, d, e, f, g]
+    for a = windowsizes
+        for b = stepsizes
+            for d = filter
+                for e = points
+                    for f = filterthresholds
+                        for g = binsizes
+                            combinations(idx, :) = [a, b, d, e, f, g];
+                            idx = idx + 1;
                         end
+                    end
                 end
             end
         end
+    end
+
+    % Start parallel pool if needed
+    if isempty(gcp('nocreate'))
+        parpool;
+    end
+
+    % Create DataQueue and progress tracker
+    D = parallel.pool.DataQueue;
+    p = 0; % counter for progress
+    afterEach(D, @(~) modelling.updateProgress(total_iterations, @() p + 1, @(v) assignin('base', 'p', v)));
+
+    % Initialize p in base workspace
+    assignin('base', 'p', 0);
+
+    % Parallel loop
+    parfor i = 1:total_iterations
+        a = combinations(i, 1);
+        b = combinations(i, 2);
+        d = combinations(i, 3);
+        e = combinations(i, 4);
+        f = combinations(i, 5);
+        g = combinations(i, 6);
+
+        model = modelling.SVMtrain(trainingdata, a, b, features, d, e, f, g);
+        predictions = modelling.SVMpredict(model, validationdata, a, b, features, g);
+        labels = inspect.getlabels(validationdata, a, b);
+        f1 = inspect.f1score(labels, predictions);
+
+        scores(i, :) = [a, b, d, e, f, g, f1];
+
+        % Tell DataQueue that one iteration finished
+        send(D, i);
+    end
+
+    % Find best
+    [~, best_idx] = max(scores(:, 7));
+    best = scores(best_idx, :);
+
+    besta = best(1);
+    bestb = best(2);
+    bestd = best(3);
+    beste = best(4);
+    bestf = best(5);
+    bestg = best(6);
+    bestf1 = best(7);
+end
+
+function updateProgress(total, getValFunc, setValFunc)
+    p = evalin('base', 'p');
+    p = p + 1;
+    fprintf('Progress: %d/%d (%.2f%%)\n', p, total, (p/total)*100);
+    setValFunc(p);
+end
+
+
 
 % Class end
     end
