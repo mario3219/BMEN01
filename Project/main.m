@@ -11,29 +11,30 @@ addpath('src/')
 
 trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
 validationdata = {'afdb_5.mat','afdb_6.mat','afdb_7.mat'};
-validationdata = validationdata{3}; % Change which data to validate against here
+validationdata = validationdata{1}; % Change which data to validate against here
 
 %% Gridsearch
 
-windowsizes = 10:10:20;
-stepsizes = 10:10:50;
+windowsizes = 20:20:100;
+stepsizes = 50:20:100;
 features = "SSampEn";
 filters = "ON";
-points = 3:1:10;
-filterthresholds = 0.1:0.05:0.2;
-binsizes=0:0.02:0.1;
+points = 10:20:50;
+filterthresholds = 0.2:0.1:0.4;
+binsizes=0.1:0.1:0.5;
 
-modelling.gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filters,points,filterthresholds,binsizes)
+[a,b,d,e,f,g] = modelling.gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filters,points,filterthresholds,binsizes);
+fprintf("Windowsize: " + a + "\n" + "Stepsize: " + b + "\n" + "Points: " + e + "\n" + "Median Filter threshold: " + f + "\n" + "Binsize: " + g + "\n");
 
 %% SVM
 
-windowsize = 30;
-stepsize = 10;
-features = ["SSampEn","RMSSD"];
+windowsize = 100;
+stepsize = 90;
+features = ["SSampEn","RMSSD","Poincare"];
 filter = "ON";
-points = 10;
-filterthreshold = 0.2;
-binsize=0.05;
+points = 50;
+filterthreshold = 0.4;
+binsize=0.5;
 
 model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold,binsize);
 predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features,binsize);

@@ -217,7 +217,7 @@ classdef modelling
     end
 
 
-        function best = gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filter,points,filterthresholds,binsizes)
+        function [besta,bestb,bestd,beste,bestf,bestg] = gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filter,points,filterthresholds,binsizes)
             bestf1 = 0;
             total_iterations = length(windowsizes)*length(stepsizes)*length(features)*length(filter)*length(points)*length(filterthresholds)*length(binsizes);
             iteration = 1;
@@ -233,7 +233,9 @@ classdef modelling
                                         labels = inspect.getlabels(validationdata,a,b);
                                         f1 = inspect.f1score(labels, predictions);
                                         if f1 > bestf1
-                                            best = [a,b,d,e,f,g];
+                                            fprintf("New best: " + f1 + "\n")
+                                            besta=a;bestb=b;bestd=d;beste=e;bestf=f;bestg=g;
+                                            bestf1 = f1;
                                         end
                                         iteration = iteration + 1;
                                     end
