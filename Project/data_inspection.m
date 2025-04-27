@@ -16,6 +16,10 @@ inspect.plotdata(data);
 % qrs: timestamps for R-peaks, the difference between each element
 % represents RR-interval time
 
+%% Poincare
+data = "afdb_6.mat";
+inspect.poincare(data,1,100,0.05);
+
 %% Compare qrs_diff to rr
 load(data)
 rr_diff = diff(qrs) / Fs;

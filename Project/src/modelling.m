@@ -13,7 +13,7 @@ classdef modelling
         % based on a certain threshold, and return the threshold value which
         % provided the best F1 score.
 
-        function threshold = train(trainingdata,windowsize,stepsize,feature,filter,points,filterthreshold)
+        function threshold = train(trainingdata,windowsize,stepsize,feature,binsize,filter,points,filterthreshold)
 
             % Calculate number of segments to label, also necessary to
             % initialize label matrix with appropriate size to prevent
@@ -48,7 +48,9 @@ classdef modelling
                         score = RMSSD.func(rr,windowsize,i);
                     elseif feature == "SSampEn"
                         score = SSampEn.func(rr, windowsize, i);
-                    else
+		            elseif feature == "Poincare"
+			            score = Poincare.func(rr,windowsize,i,binsize);
+		            else
                         error("Unknown feature: %s", feature)
                     end
                     % Criterion inputs end
@@ -82,7 +84,7 @@ classdef modelling
 
         end
 
-        function result = predict(data,windowsize,stepsize,feature,threshold)
+        function result = predict(data,windowsize,stepsize,feature,binsize,threshold)
             load(data);
             total_segments = length(1:stepsize:(length(rr)-windowsize));
             result = zeros(total_segments,2);
@@ -97,6 +99,8 @@ classdef modelling
                     score = RMSSD.func(rr,windowsize,i);
                 elseif feature == "SSampEn"
                     score = SSampEn.func(rr, windowsize, i);
+		        elseif feature == "Poincare"
+		            score = Poincare.func(rr,windowsize,i,binsize);
                 else
                     error("Unknown feature: %s", feature)
                 end
@@ -128,7 +132,7 @@ classdef modelling
             result = any(strcmp(vector, target));
         end
 
-        function model = SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold)
+        function model = SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold,binsize)
             total_segments = 0;
             for i = 1:length(trainingdata)
                 load(trainingdata{i})
@@ -163,6 +167,10 @@ classdef modelling
                         score = SSampEn.func(rr,windowsize,i);
                         results(index,2) = score;
                     end
+                    if modelling.containsString(features,"Poincare")
+                        score = Poincare.func(rr,windowsize,i,binsize);
+                        results(index,3) = score;
+                    end
                     % Criterion inputs end
                     
                     results(index,length(features)+1) = label;
@@ -178,7 +186,7 @@ classdef modelling
 
         end
 
-        function predictions = SVMpredict(SVM,data,windowsize,stepsize,features)
+        function predictions = SVMpredict(SVM,data,windowsize,stepsize,features,binsize)
             load(data);
             total_segments = length(1:stepsize:(length(rr)-windowsize));
             formatted_data = zeros(total_segments,length(features));
@@ -196,6 +204,10 @@ classdef modelling
                 if modelling.containsString(features,"SSampEn")
                     score = SSampEn.func(rr,windowsize,i);
                     formatted_data(index,2) = score;
+                end
+                if modelling.containsString(features,"Poincare")
+                    score = Poincare.func(rr,windowsize,i,binsize);
+                    formatted_data(index,3) = score;
                 end
                 % Criterions input end
                 index = index + 1;

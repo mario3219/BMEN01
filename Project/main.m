@@ -17,13 +17,14 @@ validationdata = validationdata{3}; % Change which data to validate against here
 
 windowsize = 30;
 stepsize = 30;
-features = ["RMSSD","SSampEn"];
+features = ["RMSSD","SSampEn","Poincare"];
 filter = "ON";
 points = 10;
 filterthreshold = 0.2;
+binsize=0.025;
 
-model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold);
-predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features);
+model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold,binsize);
+predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features,binsize);
 
 inspect.compare(validationdata,predictions,windowsize,stepsize);
 
@@ -35,16 +36,17 @@ inspect.compare(validationdata,predictions,windowsize,stepsize);
 % that provides the best F1 score, then validate the result with validation
 % data (afdb_5 -> afdb_7)
 
-windowsize = 10;
-stepsize = 5;
+windowsize = 30;
+stepsize = 30;
 feature = "RMSSD";
 filter = "ON";
 points = 10;
 filterthreshold = 0.2;
+binsize = 0;
 
 % Train & predict
-threshold = modelling.train(trainingdata,windowsize,stepsize,feature,filter,points,filterthreshold);
-predictions = modelling.predict(validationdata,windowsize,stepsize,feature,threshold);
+threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,threshold);
 
 % Performance evaluation
 inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
@@ -53,13 +55,29 @@ inspect.scoreDistribution(predictions)
 %% SSampEn
 windowsize = 30;
 stepsize = 30;
-criterion = "SSampEn";
+feature = "SSampEn";
 filter = "ON";
 points = 10;
 filterthreshold = 0.2;
 
-threshold = modelling.train(trainingdata,windowsize,stepsize,criterion,filter,points,filterthreshold);
-predictions = modelling.predict(validationdata,windowsize,stepsize,criterion,threshold);
+threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,threshold);
+
+inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.scoreDistribution(predictions)
+
+%% Poincare
+
+windowsize = 30;
+stepsize = 30;
+feature = "Poincare";
+filter = "ON";
+points = 10;
+filterthreshold = 0.2;
+binsize = 0.025;
+
+threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,threshold);
 
 inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
 inspect.scoreDistribution(predictions)

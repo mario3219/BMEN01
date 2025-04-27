@@ -14,6 +14,35 @@ classdef inspect
             subplot(4,1,4),plot(qrs),title('qrs')
         end
 
+        function poincare(data,start,stop,binsize)
+            load(data)
+            binstart = 0;
+            binstop = 3;
+            
+            x = rr(start:stop);
+            y = rr(start+1:stop+1);
+            
+            min_y = min(y);
+            max_y = max(y);
+            min_x = min(x);
+            max_x = max(x);
+            
+            figure
+            plot(x, y, '.', 'MarkerSize', 20);
+            xlabel("rr(n)"),ylabel("rr(n+1)")
+            hold on
+            
+            bins = binstart:binsize:binstop;
+            
+            for i = bins
+	            plot([i,i],[binstart, binstop],'b--'),hold on;
+	            plot([binstart, binstop],[i, i],'b--'),hold on;
+            end
+            
+            xlim([min_x, max_x]);
+            ylim([min_y,max_y]);
+        end
+
         % Performance evaluation. Plots the validation rr sequence, on top
         % of the predicted labels and true labels, aswell as showing
         % computed F1 score
