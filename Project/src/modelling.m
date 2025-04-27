@@ -217,7 +217,7 @@ classdef modelling
     end
 
 
-        function [besta,bestb,bestd,beste,bestf,bestg] = gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filter,points,filterthresholds,binsizes)
+        function [besta,bestb,bestd,beste,bestf,bestg,bestf1] = gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filter,points,filterthresholds,binsizes)
             bestf1 = 0;
             total_iterations = length(windowsizes)*length(stepsizes)*length(features)*length(filter)*length(points)*length(filterthresholds)*length(binsizes);
             iteration = 1;
