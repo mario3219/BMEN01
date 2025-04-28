@@ -32,7 +32,7 @@ classdef modelling
                 load(trainingdata{k})
                 
                 % Ectopic beats filter
-                if filter == "ON"
+                if filter == 1
                     rr = modelling.medianfilter(rr,points,filterthreshold);
                 end
                 
@@ -50,6 +50,8 @@ classdef modelling
                         score = SSampEn.func(rr, windowsize, i);
 		            elseif feature == "Poincare"
 			            score = Poincare.func(rr,windowsize,i,binsize);
+                    elseif feature == "pNN50"
+                        score = pNN50.func(rr,windowsize,i);
 		            else
                         error("Unknown feature: %s", feature)
                     end
@@ -84,8 +86,14 @@ classdef modelling
 
         end
 
-        function result = predict(data,windowsize,stepsize,feature,binsize,threshold)
+        function result = predict(data,windowsize,stepsize,feature,binsize,filter,points,filterthreshold,threshold)
             load(data);
+
+            % Ectopic beats filter
+            if filter == 1
+                rr = modelling.medianfilter(rr,points,filterthreshold);
+            end
+
             total_segments = length(1:stepsize:(length(rr)-windowsize));
             result = zeros(total_segments,2);
             index = 1;
@@ -101,6 +109,8 @@ classdef modelling
                     score = SSampEn.func(rr, windowsize, i);
 		        elseif feature == "Poincare"
 		            score = Poincare.func(rr,windowsize,i,binsize);
+                elseif feature == "pNN50"
+                        score = pNN50.func(rr,windowsize,i);
                 else
                     error("Unknown feature: %s", feature)
                 end
@@ -164,6 +174,8 @@ classdef modelling
                             score = SSampEn.func(rr, windowsize, i);
                         case "Poincare"
                             score = Poincare.func(rr, windowsize, i, binsize);
+                        case "pNN50"
+                            score = pNN50.func(rr, windowsize, i);
                     end
                     results(index, f) = score;
                 end
@@ -185,8 +197,13 @@ classdef modelling
         model = fitcsvm(X, Y);
     end
 
-    function predictions = SVMpredict(SVM, data, windowsize, stepsize, features, binsize)
+    function predictions = SVMpredict(SVM, data, windowsize, stepsize, features, binsize,filter,points,filterthreshold)
         load(data);
+
+        % Ectopic beats filter
+        if filter == 1
+            rr = modelling.medianfilter(rr,points,filterthreshold);
+        end
     
         total_segments = length(1:stepsize:(length(rr) - windowsize));
         formatted_data = zeros(total_segments, length(features));
@@ -203,6 +220,8 @@ classdef modelling
                         score = SSampEn.func(rr, windowsize, i);
                     case "Poincare"
                         score = Poincare.func(rr, windowsize, i, binsize);
+                    case "pNN50"
+                        score = pNN50.func(rr, windowsize, i);
                 end
                 formatted_data(index, f) = score;
             end
@@ -327,6 +346,8 @@ function model = SVMkfoldtrain(trainingdata, windowsize, stepsize, features, fil
                             score = SSampEn.func(rr, windowsize, i);
                         case "Poincare"
                             score = Poincare.func(rr, windowsize, i, binsize);
+                        case "pNN50"
+                            score = pNN50.func(rr, windowsize, i);
                     end
                     results(index, f) = score;
                 end

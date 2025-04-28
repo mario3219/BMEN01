@@ -13,7 +13,7 @@ trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat'
 
 windowsizes = 30;
 stepsizes = 30;
-features = ["SSampEn","RMSSD","Poincare"];
+features = ["SSampEn","RMSSD","Poincare","pNN50"];
 filters = 1;
 points = 13;
 filterthresholds = 0.4 : 0.05 : 1;
@@ -26,18 +26,19 @@ fprintf("Windowsize: " + a + "\n" + "Stepsize: " + b + "\n" + "Points: " + e + "
 %% SVM
 
 trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
-validationdata = 'afdb_7.mat';
+validationdata = 'afdb_6.mat';
 
 windowsize = 30;
 stepsize = 30;
-features = ["SSampEn","RMSSD","Poincare"];
-filter = 1;
+features = ["SSampEn","RMSSD","Poincare","pNN50"];
+filter_train = 1;
+filter_predict = 1;
 points = 13;
-filterthreshold = 0.6;
+filterthreshold = 0.65;
 binsize=0.04;
 
-model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold,binsize);
-predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features,binsize);
+model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter_train,points,filterthreshold,binsize);
+predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features,binsize,filter_predict,points,filterthreshold);
 
 inspect.compare(validationdata,predictions,windowsize,stepsize);
 
@@ -55,14 +56,15 @@ validationdata = 'afdb_7.mat';
 windowsize = 30;
 stepsize = 30;
 feature = "RMSSD";
-filter = "ON";
+filter_train = 1;
+filter_predict = 1;
 points = 10;
 filterthreshold = 0.2;
 binsize = 0;
 
 % Train & predict
-threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter,points,filterthreshold);
-predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,threshold);
+threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter_train,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
 % Performance evaluation
 inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
@@ -76,12 +78,13 @@ validationdata = 'afdb_7.mat';
 windowsize = 30;
 stepsize = 30;
 feature = "SSampEn";
-filter = "ON";
+filter_train = 1;
+filter_predict = 1;
 points = 10;
 filterthreshold = 0.2;
 
-threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter,points,filterthreshold);
-predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,threshold);
+threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter_train,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
 inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
 inspect.scoreDistribution(predictions)
@@ -94,13 +97,36 @@ validationdata = 'afdb_7.mat';
 windowsize = 30;
 stepsize = 30;
 feature = "Poincare";
-filter = "ON";
+filter_train = 1;
+filter_predict = 1;
 points = 10;
 filterthreshold = 0.2;
 binsize = 0.025;
 
-threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter,points,filterthreshold);
-predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,threshold);
+threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter_train,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
+inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.scoreDistribution(predictions)
+
+%% pNN50
+
+trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
+validationdata = 'afdb_7.mat';
+
+windowsize = 30;
+stepsize = 30;
+feature = "pNN50";
+filter_train = 1;
+filter_predict = 1;
+points = 10;
+filterthreshold = 0.2;
+binsize = 0;
+
+% Train & predict
+threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter_train,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
+
+% Performance evaluation
 inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
 inspect.scoreDistribution(predictions)
