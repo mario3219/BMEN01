@@ -26,7 +26,7 @@ modelling.featureSelection(trainingdata,validationdata,windowsize,stepsize,filte
 
 trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat','afdb_6.mat','afdb_7.mat'};
 
-windowsizes = 30;
+windowsizes = 25:1:35;
 stepsizes = 30;
 features = ["SSampEn","RMSSD","Poincare","pNN50","SDNN"];
 filters = 1;
