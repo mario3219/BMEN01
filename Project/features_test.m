@@ -7,41 +7,6 @@ addpath('AF_RR_intervals/')
 % path to source code
 addpath('src/')
 
-%% Gridsearch
-
-trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat','afdb_6.mat','afdb_7.mat'};
-
-windowsizes = 30;
-stepsizes = 30;
-features = ["SSampEn","RMSSD","Poincare","pNN50","SDNN"];
-filters = 1;
-points = 13;
-filterthresholds = 0.4 : 0.05 : 1;
-binsizes= 0.04;
-k = 5;
-
-[a,b,d,e,f,g,bestf1] = modelling.gridSearch(trainingdata,windowsizes,stepsizes,features,filters,points,filterthresholds,binsizes,k);
-fprintf("Windowsize: " + a + "\n" + "Stepsize: " + b + "\n" + "Points: " + e + "\n" + "Median Filter threshold: " + f + "\n" + "Bin size: " + g + "\n" + "Best F1: " + bestf1 + "\n");
-
-%% SVM
-
-trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
-validationdata = 'afdb_5.mat';
-
-windowsize = 30;
-stepsize = 30;
-features = ["SSampEn","RMSSD","Poincare","pNN50","SDNN"];
-filter_train = 1;
-filter_predict = 1;
-points = 13;
-filterthreshold = 0.65;
-binsize=0.04;
-
-model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter_train,points,filterthreshold,binsize);
-predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features,binsize,filter_predict,points,filterthreshold);
-
-inspect.compare(validationdata,predictions,windowsize,stepsize);
-
 %% RMSSD
 
 % Simple threshold detector based only on RMSSD
@@ -67,7 +32,7 @@ threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,fil
 predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
 % Performance evaluation
-inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.compare(validationdata,predictions,windowsize,stepsize,points,filterthreshold);
 inspect.scoreDistribution(predictions)
 
 %% SSampEn
@@ -86,7 +51,7 @@ filterthreshold = 0.2;
 threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter_train,points,filterthreshold);
 predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
-inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.compare(validationdata,predictions,windowsize,stepsize,points,filterthreshold);
 inspect.scoreDistribution(predictions)
 
 %% Poincare
@@ -106,7 +71,7 @@ binsize = 0.025;
 threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter_train,points,filterthreshold);
 predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
-inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.compare(validationdata,predictions,windowsize,stepsize,points,filterthreshold);
 inspect.scoreDistribution(predictions)
 
 %% pNN50
@@ -128,7 +93,7 @@ threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,fil
 predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
 % Performance evaluation
-inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.compare(validationdata,predictions,windowsize,stepsize,points,filterthreshold);
 inspect.scoreDistribution(predictions)
 
 %% SDNN
@@ -150,5 +115,5 @@ threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,fil
 predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
 % Performance evaluation
-inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.compare(validationdata,predictions,windowsize,stepsize,points,filterthreshold);
 inspect.scoreDistribution(predictions)

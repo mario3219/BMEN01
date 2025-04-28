@@ -29,7 +29,7 @@ subplot(1,2,2),plot(rr),title("rr")
 
 %% Median filter test
 load("afdb_6.mat")
-points = 13;
+points = 7;
 threshold = 1;
 filtered = modelling.medianfilter(rr,points,threshold);
 figure

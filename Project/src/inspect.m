@@ -46,8 +46,9 @@ classdef inspect
         % Performance evaluation. Plots the validation rr sequence, on top
         % of the predicted labels and true labels, aswell as showing
         % computed F1 score
-        function compare(validationdata,predictions,windowsize,stepsize)
+        function compare(validationdata,predictions,windowsize,stepsize,points,threshold)
             load(validationdata)
+            rr = modelling.medianfilter(rr,points,threshold);
             labels = inspect.getlabels(validationdata,windowsize,stepsize);
 
             f1 = inspect.f1score(labels, predictions);
