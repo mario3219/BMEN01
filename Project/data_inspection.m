@@ -17,7 +17,7 @@ inspect.plotdata(data);
 % represents RR-interval time
 
 %% Poincare
-data = "afdb_6.mat";
+data = "afdb_7.mat";
 inspect.poincare(data,1,100,0.05);
 
 %% Compare qrs_diff to rr
@@ -29,8 +29,8 @@ subplot(1,2,2),plot(rr),title("rr")
 
 %% Median filter test
 load("afdb_6.mat")
-points = 50;
-threshold = 0.5;
+points = 13;
+threshold = 1;
 filtered = modelling.medianfilter(rr,points,threshold);
 figure
 subplot(2,1,1),plot(rr),title("Unfiltered rr"),ylim([0 2]);

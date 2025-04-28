@@ -13,7 +13,7 @@ trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat'
 
 windowsizes = 30;
 stepsizes = 30;
-features = ["SSampEn","RMSSD","Poincare","pNN50"];
+features = ["SSampEn","RMSSD","Poincare","pNN50","SDNN"];
 filters = 1;
 points = 13;
 filterthresholds = 0.4 : 0.05 : 1;
@@ -26,11 +26,11 @@ fprintf("Windowsize: " + a + "\n" + "Stepsize: " + b + "\n" + "Points: " + e + "
 %% SVM
 
 trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
-validationdata = 'afdb_6.mat';
+validationdata = 'afdb_5.mat';
 
 windowsize = 30;
 stepsize = 30;
-features = ["SSampEn","RMSSD","Poincare","pNN50"];
+features = ["SSampEn","RMSSD","Poincare","pNN50","SDNN"];
 filter_train = 1;
 filter_predict = 1;
 points = 13;
@@ -122,6 +122,28 @@ filter_predict = 1;
 points = 10;
 filterthreshold = 0.2;
 binsize = 0;
+
+% Train & predict
+threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter_train,points,filterthreshold);
+predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
+
+% Performance evaluation
+inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
+inspect.scoreDistribution(predictions)
+
+%% SDNN
+
+trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
+validationdata = 'afdb_6.mat';
+
+windowsize = 30;
+stepsize = 30;
+feature = "SDNN";
+filter_train = 1;
+filter_predict = 1;
+points = 13;
+filterthreshold = 0.65;
+binsize = 0.04;
 
 % Train & predict
 threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,filter_train,points,filterthreshold);

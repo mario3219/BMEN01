@@ -52,6 +52,8 @@ classdef modelling
 			            score = Poincare.func(rr,windowsize,i,binsize);
                     elseif feature == "pNN50"
                         score = pNN50.func(rr,windowsize,i);
+                    elseif feature == "SDNN"
+                        score = SDNN.func(rr,windowsize,i);
 		            else
                         error("Unknown feature: %s", feature)
                     end
@@ -111,6 +113,8 @@ classdef modelling
 		            score = Poincare.func(rr,windowsize,i,binsize);
                 elseif feature == "pNN50"
                         score = pNN50.func(rr,windowsize,i);
+                elseif feature == "SDNN"
+                        score = SDNN.func(rr,windowsize,i);
                 else
                     error("Unknown feature: %s", feature)
                 end
@@ -135,11 +139,6 @@ classdef modelling
                     end
                 end
             end
-        end
-
-        function result = containsString(vector, target)
-            % Check if target is in the vector
-            result = any(strcmp(vector, target));
         end
 
     function model = SVMtrain(trainingdata, windowsize, stepsize, features, filter, points, filterthreshold, binsize)
@@ -176,6 +175,8 @@ classdef modelling
                             score = Poincare.func(rr, windowsize, i, binsize);
                         case "pNN50"
                             score = pNN50.func(rr, windowsize, i);
+                        case "SDNN"
+                            score = SDNN.func(rr,windowsize,i);
                     end
                     results(index, f) = score;
                 end
@@ -222,6 +223,8 @@ classdef modelling
                         score = Poincare.func(rr, windowsize, i, binsize);
                     case "pNN50"
                         score = pNN50.func(rr, windowsize, i);
+                    case "SDNN"
+                        score = SDNN.func(rr,windowsize,i);
                 end
                 formatted_data(index, f) = score;
             end
@@ -348,6 +351,8 @@ function model = SVMkfoldtrain(trainingdata, windowsize, stepsize, features, fil
                             score = Poincare.func(rr, windowsize, i, binsize);
                         case "pNN50"
                             score = pNN50.func(rr, windowsize, i);
+                        case "SDNN"
+                            score = SDNN.func(rr,windowsize,i);
                     end
                     results(index, f) = score;
                 end
