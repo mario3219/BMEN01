@@ -1,4 +1,4 @@
-clc,clear,close all
+clc,clear
 
 % Paths and conditions
 
@@ -7,34 +7,34 @@ addpath('AF_RR_intervals/')
 % path to source code
 addpath('src/')
 
-% Load data
-
-trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
-validationdata = {'afdb_5.mat','afdb_6.mat','afdb_7.mat'};
-validationdata = validationdata{1}; % Change which data to validate against here
-
 %% Gridsearch
 
-windowsizes = 10:20:100;
-stepsizes = 10:20:100;
+trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat','afdb_5.mat','afdb_6.mat','afdb_7.mat'};
+
+windowsizes = 30;
+stepsizes = 30;
 features = ["SSampEn","RMSSD","Poincare"];
 filters = 1;
-points = 3:10:50;
-filterthresholds = 0.1 : 0.1 : 0.4;
-binsizes= 0.01 : 0.01 : 0.1;
+points = 13;
+filterthresholds = 0.4 : 0.05 : 1;
+binsizes= 0.04;
+k = 5;
 
-[a,b,d,e,f,g,bestf1] = modelling.gridSearch(trainingdata,validationdata,windowsizes,stepsizes,features,filters,points,filterthresholds,binsizes);
+[a,b,d,e,f,g,bestf1] = modelling.gridSearch(trainingdata,windowsizes,stepsizes,features,filters,points,filterthresholds,binsizes,k);
 fprintf("Windowsize: " + a + "\n" + "Stepsize: " + b + "\n" + "Points: " + e + "\n" + "Median Filter threshold: " + f + "\n" + "Bin size: " + g + "\n" + "Best F1: " + bestf1 + "\n");
 
 %% SVM
 
-windowsize = 60;
-stepsize = 70;
+trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
+validationdata = 'afdb_7.mat';
+
+windowsize = 30;
+stepsize = 30;
 features = ["SSampEn","RMSSD","Poincare"];
-filter = "ON";
-points = 10;
-filterthreshold = 0.2;
-binsize=0.1;
+filter = 1;
+points = 13;
+filterthreshold = 0.6;
+binsize=0.04;
 
 model = modelling.SVMtrain(trainingdata,windowsize,stepsize,features,filter,points,filterthreshold,binsize);
 predictions = modelling.SVMpredict(model,validationdata,windowsize,stepsize,features,binsize);
@@ -48,6 +48,9 @@ inspect.compare(validationdata,predictions,windowsize,stepsize);
 % Strategy: Calculate RMSSD for each training set, find the best threshold
 % that provides the best F1 score, then validate the result with validation
 % data (afdb_5 -> afdb_7)
+
+trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
+validationdata = 'afdb_7.mat';
 
 windowsize = 30;
 stepsize = 30;
@@ -66,6 +69,10 @@ inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
 inspect.scoreDistribution(predictions)
 
 %% SSampEn
+
+trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
+validationdata = 'afdb_7.mat';
+
 windowsize = 30;
 stepsize = 30;
 feature = "SSampEn";
@@ -80,6 +87,9 @@ inspect.compare(validationdata,predictions(:,2),windowsize,stepsize);
 inspect.scoreDistribution(predictions)
 
 %% Poincare
+
+trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
+validationdata = 'afdb_7.mat';
 
 windowsize = 30;
 stepsize = 30;

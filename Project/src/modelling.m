@@ -217,7 +217,7 @@ classdef modelling
     end
 
 
-function [besta, bestb, bestd, beste, bestf, bestg, bestf1] = gridSearch(trainingdata, validationdata, windowsizes, stepsizes, features, filter, points, filterthresholds, binsizes)
+function [besta, bestb, bestd, beste, bestf, bestg, bestf1] = gridSearch(trainingdata,windowsizes, stepsizes, features, filter, points, filterthresholds, binsizes, k)
 
     total_iterations = length(windowsizes) * length(stepsizes) * length(filter) * length(points) * length(filterthresholds) * length(binsizes);
 
@@ -264,9 +264,9 @@ function [besta, bestb, bestd, beste, bestf, bestg, bestf1] = gridSearch(trainin
         f = combinations(i, 5);
         g = combinations(i, 6);
 
-        model = modelling.SVMtrain(trainingdata, a, b, features, d, e, f, g);
-        predictions = modelling.SVMpredict(model, validationdata, a, b, features, g);
-        labels = inspect.getlabels(validationdata, a, b);
+        model = modelling.SVMkfoldtrain(trainingdata, a, b, features, d, e, f, g, k);
+        predictions = kfoldPredict(model);
+        labels = model.Y;
         f1 = inspect.f1score(labels, predictions);
 
         scores(i, :) = [a, b, d, e, f, g, f1];
@@ -295,7 +295,58 @@ function updateProgress(total, getValFunc, setValFunc)
     setValFunc(p);
 end
 
-
+function model = SVMkfoldtrain(trainingdata, windowsize, stepsize, features, filter, points, filterthreshold, binsize,kf)
+        total_segments = 0;
+        for i = 1:length(trainingdata)
+            load(trainingdata{i});
+            total_segments = total_segments + length(1:stepsize:(length(rr) - windowsize));
+        end
+    
+        results = zeros(total_segments, length(features) + 1); % +1 for label
+    
+        index = 1;
+        for k = 1:length(trainingdata)
+            load(trainingdata{k});
+    
+            % Ectopic beats filter
+            if filter == 1
+                rr = modelling.medianfilter(rr, points, filterthreshold);
+            end
+    
+            % Calculate scores + labels
+            for i = 1:stepsize:(length(rr) - windowsize)
+                label = mode(targetsRR(i:i+windowsize));
+    
+                for f = 1:length(features)
+                    feature_name = features{f};
+    
+                    switch feature_name
+                        case "RMSSD"
+                            score = RMSSD.func(rr, windowsize, i);
+                        case "SSampEn"
+                            score = SSampEn.func(rr, windowsize, i);
+                        case "Poincare"
+                            score = Poincare.func(rr, windowsize, i, binsize);
+                    end
+                    results(index, f) = score;
+                end
+    
+                % Store label in the last column
+                results(index, length(features) + 1) = label;
+                index = index + 1;
+            end
+        end
+    
+        % Remove rows where all features are zero
+        results(all(results == 0, 2), :) = [];
+    
+        % Separate features and labels
+        X = results(:, 1:end-1); % Features
+        Y = results(:, end);     % Labels
+    
+        % Train SVM
+        model = fitcsvm(X, Y, 'KFold',kf);
+    end
 
 % Class end
     end
