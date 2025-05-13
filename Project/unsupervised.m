@@ -22,8 +22,9 @@ points = 1:5:20;
 filterthresholds = 0.1:0.5:2;
 binsizes=0.05:0.05:0.2;
 initthreshold = 0;
+adapt_rates = 1:10:50;
 
-[besta, bestb, bestd, beste, bestf, bestg, bestf1] = unsupmodelling.gridSearch(data, windowsizes, stepsizes, features, filter, points, filterthresholds, binsizes, initthreshold);
+[besta, bestb, bestd, beste, bestf, bestg, besth, bestf1] = unsupmodelling.gridSearch(data, windowsizes, stepsizes, features, filter, points, filterthresholds, binsizes, initthreshold, adapt_rates);
 
 %% Feature selection
 
@@ -52,6 +53,7 @@ points = 6;
 filterthreshold = 1.2;
 binsize=0.2;
 initthreshold = 0;
+adapt_rate = 10;
 
-predictions = unsupmodelling.predict(data, windowsize, stepsize, features, filter, points, filterthreshold, binsize, initthreshold);
+predictions = unsupmodelling.predict(data, windowsize, stepsize, features, filter, points, filterthreshold, binsize, initthreshold,adapt_rate);
 inspect.compare(data,predictions,windowsize,stepsize,points,filterthreshold)

@@ -1,6 +1,6 @@
 classdef unsupmodelling
     methods(Static)
-        function predictions = predict(data, windowsize, stepsize, features, filter, points, filterthreshold, binsize, initial_threshold)
+        function predictions = predict(data, windowsize, stepsize, features, filter, points, filterthreshold, binsize, initial_threshold, adapt_rate)
             load(data);
             total_segments = length(1:stepsize:(length(rr)-windowsize));
             predictions = zeros(total_segments,1); % +1 for label
@@ -8,7 +8,6 @@ classdef unsupmodelling
             index = 1;
             af = 0; 
             distances = [];
-            adapt_rate = 10;
 
             % Ectopic beats filter
             if filter == 1
@@ -59,24 +58,26 @@ classdef unsupmodelling
             end
         end
 
-        function [besta, bestb, bestd, beste, bestf, bestg, bestf1] = gridSearch(data,windowsizes, stepsizes, features, filter, points, filterthresholds, binsizes, k)
+        function [besta, bestb, bestd, beste, bestf, bestg, besth, bestf1] = gridSearch(data,windowsizes, stepsizes, features, filter, points, filterthresholds, binsizes, k, adapt_rates)
                 
                     total_iterations = length(windowsizes) * length(stepsizes) * length(filter) * length(points) * length(filterthresholds) * length(binsizes);
                 
                     % Preallocate
-                    scores = zeros(total_iterations, 7); % [a, b, d, e, f, g, f1]
+                    scores = zeros(total_iterations, 8); % [a, b, d, e, f, g, h, f1]
                 
                     % Generate all combinations
                     idx = 1;
-                    combinations = zeros(total_iterations, 6); % [a, b, d, e, f, g]
+                    combinations = zeros(total_iterations, 7); % [a, b, d, e, f, g, h]
                     for a = windowsizes
                         for b = stepsizes
                             for d = filter
                                 for e = points
                                     for f = filterthresholds
                                         for g = binsizes
-                                            combinations(idx, :) = [a, b, d, e, f, g];
-                                            idx = idx + 1;
+                                            for h = adapt_rates
+                                                combinations(idx, :) = [a, b, d, e, f, g, h];
+                                                idx = idx + 1;
+                                            end
                                         end
                                     end
                                 end
@@ -105,20 +106,21 @@ classdef unsupmodelling
                         e = combinations(i, 4);
                         f = combinations(i, 5);
                         g = combinations(i, 6);
+                        h = combinations(i, 7);
                 
-                        predictions = unsupmodelling.predict(data, a, b, features, d, e, f, g, k);
+                        predictions = unsupmodelling.predict(data, a, b, features, d, e, f, g, k, h);
                         
                         labels = inspect.getlabels(data,a,b);
                         f1 = inspect.f1score(labels, predictions);
                 
-                        scores(i, :) = [a, b, d, e, f, g, f1];
+                        scores(i, :) = [a, b, d, e, f, g, h, f1];
                 
                         % Tell DataQueue that one iteration finished
                         send(D, i);
                     end
                 
                     % Find best
-                    [~, best_idx] = max(scores(:, 7));
+                    [~, best_idx] = max(scores(:, 8));
                     best = scores(best_idx, :);
                 
                     besta = best(1);
@@ -127,7 +129,8 @@ classdef unsupmodelling
                     beste = best(4);
                     bestf = best(5);
                     bestg = best(6);
-                    bestf1 = best(7);
+                    besth = best(7);
+                    bestf1 = best(8);
         end
 
         function best_combo = featureSelection(data,windowsize,stepsize,filter,points,filterthreshold,binsize,features,initthreshold)
