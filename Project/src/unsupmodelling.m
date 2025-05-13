@@ -128,7 +128,39 @@ classdef unsupmodelling
                     bestf = best(5);
                     bestg = best(6);
                     bestf1 = best(7);
-          end
+        end
+
+        function best_combo = featureSelection(data,windowsize,stepsize,filter,points,filterthreshold,binsize,features,initthreshold)
+            n = numel(features);
+            all_combinations = {};
+            
+            for k = 1:n
+                combs = nchoosek(1:n, k);
+                for i = 1:size(combs,1)
+                    all_combinations{end+1} = features(combs(i,:));
+                end
+            end
+            
+            best_combo = "RMSSD";
+            best_f1 = 0;
+            total_iterations = length(all_combinations);
+            iteration = 1;
+            for comb = all_combinations
+                fprintf("Progress: " + iteration + "/" + total_iterations + "\n");
+                features = comb{1};
+                predictions = unsupmodelling.predict(data, windowsize, stepsize, features, filter, points, filterthreshold, binsize, initthreshold);
+                labels = inspect.getlabels(data,windowsize,stepsize);
+                f1 = inspect.f1score(labels, predictions);
+                if f1 > best_f1
+                    best_f1 = f1;
+                    best_combo = features;
+                    fprintf("New best F1: " + f1 + "\n");
+                end
+                iteration = iteration + 1;
+            end
+            fprintf("Best features:");
+            disp(best_combo)    
+        end
 
     end
 end

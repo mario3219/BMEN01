@@ -25,17 +25,32 @@ initthreshold = 0;
 
 [besta, bestb, bestd, beste, bestf, bestg, bestf1] = unsupmodelling.gridSearch(data, windowsizes, stepsizes, features, filter, points, filterthresholds, binsizes, initthreshold);
 
-%% Unsupervised Classifier
+%% Feature selection
 
-data = 'afdb_7.mat';
+data = 'afdb_1.mat';
 
-windowsize = 200;
-stepsize = 200;
+windowsize = 100;
+stepsize = 150;
 features = ["SSampEn","RMSSD","Poincare","pNN50","SDNN"];
 filter = 1;
-points = 7;
+points = 6;
 filterthreshold = 1.2;
-binsize=0.04;
+binsize=0.2;
+initthreshold = 0;
+
+unsupmodelling.featureSelection(data,windowsize,stepsize,filter,points,filterthreshold,binsize,features,initthreshold);
+
+%% Unsupervised Classifier
+
+data = 'afdb_1.mat';
+
+windowsize = 100;
+stepsize = 150;
+features = ["SSampEn","RMSSD"];
+filter = 1;
+points = 6;
+filterthreshold = 1.2;
+binsize=0.2;
 initthreshold = 0;
 
 predictions = unsupmodelling.predict(data, windowsize, stepsize, features, filter, points, filterthreshold, binsize, initthreshold);
