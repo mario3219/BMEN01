@@ -16,7 +16,7 @@ addpath('src/')
 % data (afdb_5 -> afdb_7)
 
 trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
-validationdata = 'afdb_7.mat';
+validationdata = 'afdb_6.mat';
 
 windowsize = 30;
 stepsize = 30;
@@ -32,7 +32,7 @@ threshold = modelling.train(trainingdata,windowsize,stepsize,feature,binsize,fil
 predictions = modelling.predict(validationdata,windowsize,stepsize,feature,binsize,filter_predict,points,filterthreshold,threshold);
 
 % Performance evaluation
-inspect.compare(validationdata,predictions,windowsize,stepsize,points,filterthreshold);
+inspect.compare(validationdata,predictions(:,2),windowsize,stepsize,points,filterthreshold);
 inspect.scoreDistribution(predictions)
 
 %% SSampEn
