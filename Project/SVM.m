@@ -45,7 +45,7 @@ validationdata = 'afdb_7.mat';
 
 windowsize = 30;
 stepsize = 30;
-features = ["RMSSD","pNN50","SSampEn","SDNN"];
+features = ["RMSSD","SSampEn","Poincare"];
 filter_train = 1;
 filter_predict = 1;
 points = 7;

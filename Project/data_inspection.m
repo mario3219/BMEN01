@@ -10,6 +10,27 @@ addpath('src')
 data = "afdb_6.mat";
 inspect.plotdata(data);
 
+%%
+data = "afdb_5.mat";
+load(data)
+screenSize = get(0, 'ScreenSize');
+fig = figure('Units', 'pixels', 'Position', [screenSize(3)/4, screenSize(4)/4, 400, 300]);
+subplot(3,1,1),plot(targetsRR), ylim([0.5 1.5]);
+xlabel(data)
+ylabel('targetsRR');
+
+data = "afdb_6.mat";
+load(data)
+subplot(3,1,2),plot(targetsRR), ylim([0.5 1.5]);
+xlabel(data);
+ylabel('targetsRR');
+
+data = "afdb_7.mat";
+load(data)
+subplot(3,1,3),plot(targetsRR), ylim([0.5 1.5]);
+xlabel(data);
+ylabel('targetsRR');
+
 % targetsRR: label vector (0: normal, 1: AF)
 % QRS: QRS detector
 % rr: time between heartbeats

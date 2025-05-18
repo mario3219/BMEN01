@@ -10,7 +10,7 @@ addpath('src/')
 %% Feature selection
 
 trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
-validationdata = 'afdb_7.mat';
+validationdata = 'afdb_6.mat';
 
 windowsize = 30;
 stepsize = 30;
@@ -40,12 +40,12 @@ fprintf("Windowsize: " + a + "\n" + "Stepsize: " + b + "\n" + "Points: " + e + "
 
 %% Voting detector
 
-trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_6.mat'};
-validationdata = 'afdb_4.mat';
+trainingdata = {'afdb_1.mat','afdb_2.mat','afdb_3.mat','afdb_4.mat'};
+validationdata = 'afdb_7.mat';
 
 windowsize = 30;
 stepsize = 30;
-features = ["SSampEn","pNN50","RMSSD"];
+features = ["SSampEn","pNN50"];
 filter = 1;
 points = 7;
 filterthreshold = 1.2;
